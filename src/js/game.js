@@ -59,21 +59,20 @@ function moveZombies() {
 }
 
 Game.prototype.create = function () {
+	// Setup physics
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
 	this.game.physics.p2.defaultRestitution = 0.8;
 
+	// Setup visual scene
 	this.game.stage.backgroundColor = 0x4488cc;
 
+	// Create player
 	setupPlayer.call(this);
 
+	// Create zombies
 	this.zombies = this.game.add.group();	
-	//this.zombies.enableBody = true;
-
 	this.zombies.add(createZombie.call(this, 100, 100));
 	this.zombies.add(createZombie.call(this, 300, 300));
-
-	this.padding.x = this.player.width / 2;
-	this.padding.y = this.player.height / 2;
 };
 
 Game.prototype.update = function () {
