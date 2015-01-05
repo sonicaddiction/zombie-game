@@ -19,7 +19,7 @@ function checkKeys() {
     else {this.player.body.setZeroVelocity();}
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-    	console.log('space');
+    	useWeapon.call(this);
     }
 }
 
@@ -54,12 +54,43 @@ function moveZombies() {
 }
 
 function zombieCollision(player, zombie) {
-	console.log(player, ' hit by ', zombie);
+}
+
+function createWeapon(group) {
+	var weapon = this.add.sprite(0, 0, 'bullet');
+
+	weapon.height = 10;
+	weapon.width = 15;
+
+	this.game.physics.p2.enable(weapon);
+	weapon.body.mass = 0.01;
+	weapon.kill();
+
+	return weapon;
+}
+
+function useWeapon() {
+	var weapon = this.player.activeWeapon,
+		rotation = this.player.rotation,
+		x = this.player.position.x,
+		y = this.player.position.y;
+
+	if (weapon.alive) return;
+
+	weapon.body.rotation = rotation;
+	weapon.body.x = x;
+	weapon.body.y = y;
+
+	weapon.revive();
+
+	weapon.body.moveForward(1000);
+	
 }
 
 Game.prototype.create = function () {
 	var zombieCollisionGroup,
 		playerCollisionGroup,
+		weaponCollisionGroup,
 		zombie;
 
 	// Setup visual scene
@@ -74,6 +105,7 @@ Game.prototype.create = function () {
 
 	zombieCollisionGroup = this.game.physics.p2.createCollisionGroup();
 	playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
+	weaponCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
 	// Create zombies
 	this.zombies = this.game.add.group();
@@ -81,15 +113,20 @@ Game.prototype.create = function () {
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
 	zombie = createZombie(this.zombies, 400, 300);
+	zombie.body.damping = 0.9;
+	zombie.body.angularDamping = 0.9;
 	zombie.body.setCollisionGroup(zombieCollisionGroup);
-	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup]);
+	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 
 	// Create player
 	this.player = setupPlayer.call(this);
 	this.player.body.setCollisionGroup(playerCollisionGroup);
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 
-	console.log(zombieCollisionGroup);
+	// Create weapon
+	this.player.activeWeapon = createWeapon.call(this);
+	this.player.activeWeapon.body.setCollisionGroup(weaponCollisionGroup);
+	this.player.activeWeapon.body.collides(zombieCollisionGroup);
 };
 
 Game.prototype.update = function () {
