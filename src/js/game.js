@@ -7,24 +7,22 @@ function Game() {
 	this.padding = {};
 }
 
+console.log(Phaser.Keyboard);
+
 function checkKeys() {
 	var cursors = this.game.input.keyboard.createCursorKeys();
 
-	this.player.body.setZeroVelocity();
+	if (cursors.left.isDown) {this.player.body.rotateLeft(100);}
+    else if (cursors.right.isDown){this.player.body.rotateRight(100);}
+    else {this.player.body.setZeroRotation();}
+    
+    if (cursors.up.isDown){this.player.body.moveForward(PLAYER_SPEED);}
+    else if (cursors.down.isDown){this.player.body.moveBackward(PLAYER_SPEED);}
+    else {this.player.body.setZeroVelocity();}
 
-	if (cursors.left.isDown) {
-		this.player.body.moveLeft(PLAYER_SPEED);
-	}
-	else if (cursors.right.isDown) {
-		this.player.body.moveRight(PLAYER_SPEED);
-	}
-	
-	if (cursors.up.isDown) {
-		this.player.body.moveUp(PLAYER_SPEED);
-	}
-	else if (cursors.down.isDown) {
-		this.player.body.moveDown(PLAYER_SPEED);
-	}
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+    	console.log('space');
+    }
 }
 
 function setupPlayer() {
@@ -37,12 +35,14 @@ function setupPlayer() {
 	this.player.width = 30;
 
 	this.game.physics.p2.enable(this.player);
+
+
 }
 
 function createZombie(x, y) {
 	var zombie;
 
-	zombie = this.add.sprite(x, y, 'monster');
+	zombie = this.add.sprite(x, y, 'zombie');
 	zombie.anchor.setTo(0.5, 0.5);
 	zombie.height = 30;
 	zombie.width = 30;
@@ -52,8 +52,10 @@ function createZombie(x, y) {
 	return zombie;
 }
 
-function setupWalls() {
+function moveZombies() {
+	this.zombies.forEachAlive(function (zombies) {
 
+	});
 }
 
 Game.prototype.create = function () {
@@ -76,7 +78,7 @@ Game.prototype.create = function () {
 
 Game.prototype.update = function () {
 	checkKeys.call(this);
-	this.player.body.angle = 0;
+	moveZombies.call(this);
 };
 
 Game.prototype.onInputDown = function () {

@@ -1443,42 +1443,34 @@ window.onload = function () {
 	game.state.start('boot');
 };
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_362935ba.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_e4c6dc58.js","/")
 },{"./boot.js":5,"./game.js":7,"./menu.js":8,"./preloader.js":9,"buffer":1,"oMfpAn":4}],7:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var PLAYER_MAX_VELOCITY = 100,
-	PLAYER_ACCELERATION = 800,
-	PLAYER_DRAG = 1000,
+var PLAYER_SPEED = 100,
 	ZOMBIE_DRAG = 400;
 
 function Game() {
 	this.player = null;
-	this.zombies = [];
+	this.zombies = null;
 	this.padding = {};
 }
+
+console.log(Phaser.Keyboard);
 
 function checkKeys() {
 	var cursors = this.game.input.keyboard.createCursorKeys();
 
-	if (cursors.left.isDown) {
-		this.player.body.acceleration.x = -PLAYER_ACCELERATION;
-	}
-	else if (cursors.right.isDown) {
-		this.player.body.acceleration.x = PLAYER_ACCELERATION;
-	}
-	else {
-		this.player.body.acceleration.x = 0;
-	}
-	
-	if (cursors.up.isDown) {
-		this.player.body.acceleration.y = -PLAYER_ACCELERATION;
-	}
-	else if (cursors.down.isDown) {
-		this.player.body.acceleration.y = PLAYER_ACCELERATION;
-	}
-	else {	
-		this.player.body.acceleration.y = 0;
-	}
+	if (cursors.left.isDown) {this.player.body.rotateLeft(100);}
+    else if (cursors.right.isDown){this.player.body.rotateRight(100);}
+    else {this.player.body.setZeroRotation();}
+    
+    if (cursors.up.isDown){this.player.body.moveForward(PLAYER_SPEED);}
+    else if (cursors.down.isDown){this.player.body.moveBackward(PLAYER_SPEED);}
+    else {this.player.body.setZeroVelocity();}
+
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+    	console.log('space');
+    }
 }
 
 function setupPlayer() {
@@ -1490,43 +1482,43 @@ function setupPlayer() {
 	this.player.height = 30;
 	this.player.width = 30;
 
-	this.game.physics.arcade.enable(this.player);
+	this.game.physics.p2.enable(this.player);
 
-	this.player.body.maxVelocity.setTo(PLAYER_MAX_VELOCITY, PLAYER_MAX_VELOCITY);
-	this.player.body.drag.setTo(PLAYER_DRAG, PLAYER_DRAG);
-	this.player.body.collideWorldBounds = true;
+
 }
 
 function createZombie(x, y) {
 	var zombie;
 
-	zombie = this.add.sprite(x, y, 'monster');
+	zombie = this.add.sprite(x, y, 'zombie');
 	zombie.anchor.setTo(0.5, 0.5);
 	zombie.height = 30;
 	zombie.width = 30;
 	
-	this.game.physics.arcade.enable(zombie);
-
-	zombie.body.drag.setTo(ZOMBIE_DRAG, ZOMBIE_DRAG);
-	zombie.body.collideWorldBounds = true;
+	this.game.physics.p2.enable(zombie);	
 
 	return zombie;
 }
 
-function setupWalls() {
+function moveZombies() {
+	this.zombies.forEachAlive(function (zombies) {
 
+	});
 }
 
 Game.prototype.create = function () {
-	this.game.physics.startSystem(Phaser.Physics.ARCADE);
+	this.game.physics.startSystem(Phaser.Physics.P2JS);
+	this.game.physics.p2.defaultRestitution = 0.8;
 
 	this.game.stage.backgroundColor = 0x4488cc;
 
 	setupPlayer.call(this);
-	this.zombies.push(createZombie.call(this, 100, 100));
-	this.zombies.push(createZombie.call(this, 300, 300));
 
-	//this.input.onDown.add(this.onInputDown, this);
+	this.zombies = this.game.add.group();	
+	//this.zombies.enableBody = true;
+
+	this.zombies.add(createZombie.call(this, 100, 100));
+	this.zombies.add(createZombie.call(this, 300, 300));
 
 	this.padding.x = this.player.width / 2;
 	this.padding.y = this.player.height / 2;
@@ -1534,11 +1526,7 @@ Game.prototype.create = function () {
 
 Game.prototype.update = function () {
 	checkKeys.call(this);
-	this.game.physics.arcade.collide(this.player, this.zombies, function () {
-		console.log('zombie collision');
-	});
-	this.game.physics.arcade.collide(this.zombies, this.zombies);
-
+	moveZombies.call(this);
 };
 
 Game.prototype.onInputDown = function () {
@@ -1612,6 +1600,7 @@ Preloader.prototype.preload = function () {
 	this.load.setPreloadSprite(this.asset);
 	this.load.image('player', 'assets/player.gif');
 	this.load.image('monster', 'assets/monster.png');
+	this.load.image('zombie', 'assets/zombie.gif');
 	this.load.image('bricks', 'assets/brick.png');
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
 }

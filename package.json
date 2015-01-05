@@ -16,6 +16,7 @@
     "gulp-jshint": "*",
     "gulp-minify-css": "*",
     "gulp-minify-html": "*",
+    "gulp-notify": "^2.1.0",
     "gulp-processhtml": "*",
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "*",
