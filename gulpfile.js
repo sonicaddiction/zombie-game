@@ -10,7 +10,8 @@ var gulp = require('gulp')
   , uglify = require('gulp-uglify')
   , connect = require('gulp-connect')
   , browserify = require('gulp-browserify')
-  , paths;
+  , paths
+  , notify = require('gulp-notify');
 
 paths = {
   assets: 'src/assets/**/*',
@@ -89,6 +90,7 @@ gulp.task('scripts', function () {
   .pipe(browserify({
     insertGlobals : true
   }))
+  .on("error", notify.onError('<%= error.message %>'))
   .pipe(rename('app.js'))
   .pipe(gulp.dest('./src/js/'));
 });
