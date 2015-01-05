@@ -27,6 +27,7 @@ Preloader.prototype.preload = function () {
 	this.load.image('monster', 'assets/monster.png');
 	this.load.image('zombie', 'assets/zombie.gif');
 	this.load.image('bricks', 'assets/brick.png');
+	this.load.image('sword', 'assets/sword.png');
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
 }
 
