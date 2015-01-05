@@ -56,6 +56,10 @@ function moveZombies() {
 function zombieCollision(player, zombie) {
 }
 
+function hitZombieWithWeapon(bullet, zombie) {
+	bullet.sprite.kill();
+}
+
 function createWeapon(group) {
 	var weapon = this.add.sprite(0, 0, 'bullet');
 
@@ -80,6 +84,7 @@ function useWeapon() {
 	weapon.body.rotation = rotation;
 	weapon.body.x = x;
 	weapon.body.y = y;
+	weapon.body.setZeroRotation();
 
 	weapon.revive();
 
@@ -126,7 +131,7 @@ Game.prototype.create = function () {
 	// Create weapon
 	this.player.activeWeapon = createWeapon.call(this);
 	this.player.activeWeapon.body.setCollisionGroup(weaponCollisionGroup);
-	this.player.activeWeapon.body.collides(zombieCollisionGroup);
+	this.player.activeWeapon.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
 };
 
 Game.prototype.update = function () {
