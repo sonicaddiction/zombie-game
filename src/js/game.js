@@ -1,35 +1,29 @@
-var PLAYER_MAX_VELOCITY = 100,
-	PLAYER_ACCELERATION = 800,
-	PLAYER_DRAG = 1000,
+var PLAYER_SPEED = 100,
 	ZOMBIE_DRAG = 400;
 
 function Game() {
 	this.player = null;
-	this.zombies = [];
+	this.zombies = null;
 	this.padding = {};
 }
 
 function checkKeys() {
 	var cursors = this.game.input.keyboard.createCursorKeys();
 
+	this.player.body.setZeroVelocity();
+
 	if (cursors.left.isDown) {
-		this.player.body.acceleration.x = -PLAYER_ACCELERATION;
+		this.player.body.moveLeft(PLAYER_SPEED);
 	}
 	else if (cursors.right.isDown) {
-		this.player.body.acceleration.x = PLAYER_ACCELERATION;
-	}
-	else {
-		this.player.body.acceleration.x = 0;
+		this.player.body.moveRight(PLAYER_SPEED);
 	}
 	
 	if (cursors.up.isDown) {
-		this.player.body.acceleration.y = -PLAYER_ACCELERATION;
+		this.player.body.moveUp(PLAYER_SPEED);
 	}
 	else if (cursors.down.isDown) {
-		this.player.body.acceleration.y = PLAYER_ACCELERATION;
-	}
-	else {	
-		this.player.body.acceleration.y = 0;
+		this.player.body.moveDown(PLAYER_SPEED);
 	}
 }
 
@@ -42,11 +36,7 @@ function setupPlayer() {
 	this.player.height = 30;
 	this.player.width = 30;
 
-	this.game.physics.arcade.enable(this.player);
-
-	this.player.body.maxVelocity.setTo(PLAYER_MAX_VELOCITY, PLAYER_MAX_VELOCITY);
-	this.player.body.drag.setTo(PLAYER_DRAG, PLAYER_DRAG);
-	this.player.body.collideWorldBounds = true;
+	this.game.physics.p2.enable(this.player);
 }
 
 function createZombie(x, y) {
@@ -57,10 +47,7 @@ function createZombie(x, y) {
 	zombie.height = 30;
 	zombie.width = 30;
 	
-	this.game.physics.arcade.enable(zombie);
-
-	zombie.body.drag.setTo(ZOMBIE_DRAG, ZOMBIE_DRAG);
-	zombie.body.collideWorldBounds = true;
+	this.game.physics.p2.enable(zombie);	
 
 	return zombie;
 }
@@ -70,15 +57,18 @@ function setupWalls() {
 }
 
 Game.prototype.create = function () {
-	this.game.physics.startSystem(Phaser.Physics.ARCADE);
+	this.game.physics.startSystem(Phaser.Physics.P2JS);
+	this.game.physics.p2.defaultRestitution = 0.8;
 
 	this.game.stage.backgroundColor = 0x4488cc;
 
 	setupPlayer.call(this);
-	this.zombies.push(createZombie.call(this, 100, 100));
-	this.zombies.push(createZombie.call(this, 300, 300));
 
-	//this.input.onDown.add(this.onInputDown, this);
+	this.zombies = this.game.add.group();	
+	//this.zombies.enableBody = true;
+
+	this.zombies.add(createZombie.call(this, 100, 100));
+	this.zombies.add(createZombie.call(this, 300, 300));
 
 	this.padding.x = this.player.width / 2;
 	this.padding.y = this.player.height / 2;
@@ -86,11 +76,7 @@ Game.prototype.create = function () {
 
 Game.prototype.update = function () {
 	checkKeys.call(this);
-	this.game.physics.arcade.collide(this.player, this.zombies, function () {
-		console.log('zombie collision');
-	});
-	this.game.physics.arcade.collide(this.zombies, this.zombies);
-
+	this.player.body.angle = 0;
 };
 
 Game.prototype.onInputDown = function () {
