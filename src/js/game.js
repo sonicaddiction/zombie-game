@@ -7,8 +7,6 @@ function Game() {
 	this.padding = {};
 }
 
-console.log(Phaser.Keyboard);
-
 function checkKeys() {
 	var cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -27,28 +25,25 @@ function checkKeys() {
 
 function setupPlayer() {
 	var x = this.game.width / 2,
-		y = this.game.height / 2;
+		y = this.game.height / 2,
+		player = this.add.sprite(x, y, 'player');
+	
+	player.anchor.setTo(0.5, 0.5);
+	player.height = 30;
+	player.width = 30;
 
-	this.player = this.add.sprite(x, y, 'player');
-	this.player.anchor.setTo(0.5, 0.5);
-	this.player.height = 30;
-	this.player.width = 30;
+	this.game.physics.p2.enable(player);
 
-	this.game.physics.p2.enable(this.player);
-
-
+	return player;
 }
 
-function createZombie(x, y) {
+function createZombie(group, x, y) {
 	var zombie;
 
-	zombie = this.add.sprite(x, y, 'zombie');
-	zombie.anchor.setTo(0.5, 0.5);
+	zombie = group.create(x, y, 'zombie');
 	zombie.height = 30;
 	zombie.width = 30;
 	
-	this.game.physics.p2.enable(zombie);	
-
 	return zombie;
 }
 
@@ -58,21 +53,43 @@ function moveZombies() {
 	});
 }
 
+function zombieCollision(player, zombie) {
+	console.log(player, ' hit by ', zombie);
+}
+
 Game.prototype.create = function () {
-	// Setup physics
-	this.game.physics.startSystem(Phaser.Physics.P2JS);
-	this.game.physics.p2.defaultRestitution = 0.8;
+	var zombieCollisionGroup,
+		playerCollisionGroup,
+		zombie;
 
 	// Setup visual scene
 	this.game.stage.backgroundColor = 0x4488cc;
 
-	// Create player
-	setupPlayer.call(this);
+	// Setup physics
+	this.game.physics.startSystem(Phaser.Physics.P2JS);
+	this.game.physics.p2.defaultRestitution = 0.8;
+	this.game.physics.p2.restitution = 0.8;
+	this.game.physics.p2.setImpactEvents(true);
+	this.game.physics.p2.updateBoundsCollisionGroup();
+
+	zombieCollisionGroup = this.game.physics.p2.createCollisionGroup();
+	playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
 	// Create zombies
-	this.zombies = this.game.add.group();	
-	this.zombies.add(createZombie.call(this, 100, 100));
-	this.zombies.add(createZombie.call(this, 300, 300));
+	this.zombies = this.game.add.group();
+	this.zombies.enableBody = true;
+	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
+	
+	zombie = createZombie(this.zombies, 400, 300);
+	zombie.body.setCollisionGroup(zombieCollisionGroup);
+	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup]);
+
+	// Create player
+	this.player = setupPlayer.call(this);
+	this.player.body.setCollisionGroup(playerCollisionGroup);
+	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
+
+	console.log(zombieCollisionGroup);
 };
 
 Game.prototype.update = function () {
