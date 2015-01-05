@@ -48,8 +48,16 @@ function createZombie(group, x, y) {
 }
 
 function moveZombies() {
-	this.zombies.forEachAlive(function (zombies) {
+	var x = this.player.body.x,
+		y = this.player.body.y;
 
+	this.zombies.forEachAlive(function (zombie) {
+		var dx = x - zombie.body.x,
+			dy = y - zombie.body.y,
+			angle = Math.atan2(dy, dx);
+
+		zombie.body.rotation = angle + Math.PI/2;
+		zombie.body.moveForward(10);
 	});
 }
 
