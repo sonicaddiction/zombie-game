@@ -8,8 +8,10 @@ ObstacleFactory.prototype.setCollidesWith = function (collidesWith) {
 	this.collidesWith = collidesWith;
 }
 
-ObstacleFactory.prototype.createWall = function (width, height, x, y) {
-	var wall = this.group.create(x, y, 'bricks');
+ObstacleFactory.prototype.createWall = function (x, y, width, height) {
+	var wall = new Phaser.TileSprite(this.group.game, x, y, width, height, 'bricks');
+	this.group.add(wall);
+	wall.tint = 0x999999;
 	wall.body.static = true;
 	wall.body.setCollisionGroup(this.collisionGroup);
 	wall.body.collides(this.collidesWith);

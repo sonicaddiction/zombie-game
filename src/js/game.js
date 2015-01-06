@@ -2,7 +2,9 @@ var ZombieFactory = require('./zombieFactory.js'),
 	WeaponFactory = require('./weaponFactory.js'),
 	obstacleFactory = require('./obstacleFactory.js'),
 	PLAYER_SPEED = 100,
-	FLOOR_SCALE = 2;
+	FLOOR_SCALE = 3,
+	WALL_WIDTH = 6,
+	PADDING = WALL_WIDTH / 2;
 
 function Game() {
 	this.player = null;
@@ -123,7 +125,7 @@ Game.prototype.create = function () {
 	// Setup visual scene
 	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
 	floor.scale.set(1/FLOOR_SCALE);
-	floor.tint = 0xaa6666;
+	floor.tint = 0x666666;
 
 	// Selection marker
 	this.selectionMarker = this.game.add.graphics(0, 0);
@@ -149,7 +151,12 @@ Game.prototype.create = function () {
 	this.obstacleFactory = obstacleFactory.get(this.walls, wallCollisionGroup);
 	
 	this.obstacleFactory.setCollidesWith([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
-	wall = this.obstacleFactory.createWall(10, 100, 200, 200);
+	this.obstacleFactory.createWall(PADDING, PADDING, WALL_WIDTH, this.game.world.height*2); //left
+	this.obstacleFactory.createWall(this.game.world.width - PADDING, PADDING, WALL_WIDTH, this.game.world.height*2); //right
+	this.obstacleFactory.createWall(PADDING, PADDING, this.game.world.width*2, WALL_WIDTH);
+	this.obstacleFactory.createWall(PADDING, this.game.world.height - PADDING, this.game.world.width*2, WALL_WIDTH);
+
+	console.log(this.game);
 
 	// Create zombies
 	this.zombies = this.game.add.group();
