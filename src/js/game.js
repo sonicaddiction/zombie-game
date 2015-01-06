@@ -1,4 +1,4 @@
-var ZombieFactory = require('./zombieFactory.js').ZombieFactory,
+var ZombieFactory = require('./zombieFactory.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 2;
 
@@ -8,7 +8,7 @@ function Game() {
 	this.padding = {}
 	this.selectedObject = 0;
 	this.selectionMarker = null;
-	this.zombieFactory = new ZombieFactory(this.game);
+	this.zombieFactory = ZombieFactory.get(this.game);
 }
 
 function checkKeys() {

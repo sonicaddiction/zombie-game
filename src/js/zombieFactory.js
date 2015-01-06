@@ -18,4 +18,8 @@ ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 	return zombie;
 }
 
-exports.ZombieFactory = ZombieFactory;
+function get(game) {
+	return new ZombieFactory(game);
+}
+
+exports.get = get;
