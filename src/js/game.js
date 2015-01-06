@@ -1,5 +1,6 @@
 var PLAYER_SPEED = 100,
-	ZOMBIE_DRAG = 400;
+	ZOMBIE_DRAG = 400,
+	FLOOR_SCALE = 2;
 
 function Game() {
 	this.player = null;
@@ -136,10 +137,12 @@ Game.prototype.create = function () {
 		playerCollisionGroup,
 		weaponCollisionGroup,
 		zombie,
-		i;
+		i,
+		floor;
 
 	// Setup visual scene
-	this.game.stage.backgroundColor = 0x4488cc;
+	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
+	floor.scale.set(1/FLOOR_SCALE);
 
 	// Setup physics
 	this.game.physics.startSystem(Phaser.Physics.P2JS);

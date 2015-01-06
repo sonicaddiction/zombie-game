@@ -28,6 +28,7 @@ Preloader.prototype.preload = function () {
 	this.load.image('zombie', 'assets/zombie.gif');
 	this.load.image('bricks', 'assets/brick.png');
 	this.load.image('bullet', 'assets/bullet.png');
+	this.load.image('floor', 'assets/checkered_floor.jpg');
 	this.load.spritesheet('player_walking', 'assets/player_walking.png', 88, 98, 15);
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
 }
