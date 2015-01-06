@@ -1,5 +1,5 @@
-var PLAYER_SPEED = 100,
-	ZOMBIE_DRAG = 400,
+var ZombieFactory = require('./zombieFactory.js').ZombieFactory,
+	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 2;
 
 function Game() {
@@ -8,6 +8,7 @@ function Game() {
 	this.padding = {}
 	this.selectedObject = 0;
 	this.selectionMarker = null;
+	this.zombieFactory = new ZombieFactory(this.game);
 }
 
 function checkKeys() {
@@ -46,30 +47,13 @@ function setupPlayer() {
 		player = this.add.sprite(100, 100, 'player_walking');
 	
 	player.anchor.setTo(0.5, 0.5);
-	player.scale.set(0.6);
+	player.scale.set(0.5);
 	player.animations.add('walk');
 	player.frame = 4;
 
 	this.game.physics.p2.enable(player);
 
 	return player;
-}
-
-function createZombie(group, x, y) {
-	var zombie;
-
-	zombie = group.create(x, y, 'zombie');
-	zombie.height = 30;
-	zombie.width = 30;
-	zombie.health = 12;
-
-	zombie.body.damping = 0.9;
-	zombie.body.angularDamping = 0.9;
-
-	zombie.inputEnabled = true;
-	zombie.events.onInputDown.add(clickedZombie, this);
-	
-	return zombie;
 }
 
 function moveZombies() {
@@ -187,7 +171,7 @@ Game.prototype.create = function () {
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
 	for (i = 0; i < 10; i++) {
-		zombie = createZombie.call(this, this.zombies, this.game.world.randomX, this.game.world.randomY);
+		zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY, clickedZombie);
 		zombie.body.setCollisionGroup(zombieCollisionGroup);
 		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 	}
