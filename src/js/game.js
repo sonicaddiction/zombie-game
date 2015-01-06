@@ -5,7 +5,9 @@ var PLAYER_SPEED = 100,
 function Game() {
 	this.player = null;
 	this.zombies = null;
-	this.padding = {};
+	this.padding = {}
+	this.selectedObject = 0;
+	this.selectionMarker = null;
 }
 
 function checkKeys() {
@@ -63,6 +65,9 @@ function createZombie(group, x, y) {
 
 	zombie.body.damping = 0.9;
 	zombie.body.angularDamping = 0.9;
+
+	zombie.inputEnabled = true;
+	zombie.events.onInputDown.add(clickedZombie, this);
 	
 	return zombie;
 }
@@ -74,9 +79,7 @@ function moveZombies() {
 		index = 0;
 
 	this.zombies.forEachAlive(function (zombie) {
-		var dx = x - zombie.body.x,
-			dy = y - zombie.body.y,
-			angle = Math.atan2(dy, dx),
+		var angle = getAngle(that.player.body, zombie.body);
 			elapsedTime = that.game.time.totalElapsedSeconds(),
 			random = that.game.rnd.realInRange(15, 25);
 
@@ -86,7 +89,23 @@ function moveZombies() {
 	});
 }
 
+function getAngle(body1, body2) {
+	var dx = body1.x - body2.x,
+		dy = body1.y - body2.y;
+
+	return Math.atan2(dy, dx);
+}
+
 function zombieCollision(player, zombie) {
+}
+
+function clickedZombie(zombie) {
+	var angle = getAngle(zombie.body, this.player.body);
+
+	this.player.body.rotation = angle + Math.PI / 2;
+
+	this.selectedObject = zombie;
+	this.selectionMarker.drawCircle(0, 0, Math.max(zombie.width, zombie.height) + 30);
 }
 
 function hitZombieWithWeapon(bullet, zombie) {
@@ -103,6 +122,7 @@ function createWeapon(group) {
 
 	this.game.physics.p2.enable(weapon);
 	weapon.body.mass = 100;
+	weapon.body.bounce = 0.001;
 	
 	weapon.damageRoll = function () {
 		return this.game.rnd.realInRange(1, 6) + this.game.rnd.realInRange(1, 6);
@@ -143,6 +163,12 @@ Game.prototype.create = function () {
 	// Setup visual scene
 	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
 	floor.scale.set(1/FLOOR_SCALE);
+	floor.tint = 0xaa6666;
+
+	// Selection marker
+	this.selectionMarker = this.game.add.graphics(0, 0);
+	this.selectionMarker.lineStyle(1, 0x00ff00, 1);
+	this.selectionMarker.visible = false;
 
 	// Setup physics
 	this.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -161,7 +187,7 @@ Game.prototype.create = function () {
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
 	for (i = 0; i < 10; i++) {
-		zombie = createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
+		zombie = createZombie.call(this, this.zombies, this.game.world.randomX, this.game.world.randomY);
 		zombie.body.setCollisionGroup(zombieCollisionGroup);
 		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 	}
@@ -178,9 +204,22 @@ Game.prototype.create = function () {
 
 };
 
+function renderSelectionMarker() {
+	if (!this.selectedObject || this.selectedObject.alive === false) {
+		this.selectionMarker.visible = false;
+		return
+	};
+	
+	this.selectionMarker.x = this.selectedObject.x;
+	this.selectionMarker.y = this.selectedObject.y;
+
+	this.selectionMarker.visible = true;
+}
+
 Game.prototype.update = function () {
 	checkKeys.call(this);
 	moveZombies.call(this);
+	renderSelectionMarker.call(this);
 };
 
 Game.prototype.onInputDown = function () {
