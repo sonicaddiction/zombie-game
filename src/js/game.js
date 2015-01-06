@@ -1,4 +1,5 @@
 var ZombieFactory = require('./zombieFactory.js'),
+	WeaponFactory = require('./weaponFactory.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 2;
 
@@ -8,7 +9,8 @@ function Game() {
 	this.padding = {}
 	this.selectedObject = 0;
 	this.selectionMarker = null;
-	this.zombieFactory = ZombieFactory.get(this.game);
+	this.zombieFactory = null;
+	this.weaponFactory = null;
 }
 
 function checkKeys() {
@@ -93,13 +95,13 @@ function clickedZombie(zombie) {
 }
 
 function hitZombieWithWeapon(bullet, zombie) {
-	var damageRoll = bullet.sprite.damageRoll();
+	var damage = this.speed = Math.sqrt(bullet.velocity.x * bullet.velocity.x + bullet.velocity.y * bullet.velocity.y);
 	bullet.sprite.kill();
-	zombie.sprite.damage(damageRoll);
+	zombie.sprite.damage(damage);
 }
 
 function createWeapon(group) {
-	var weapon = this.add.sprite(0, 0, 'bullet');
+	var weapon = this.game.add.sprite(0, 0, 'bullet');
 
 	weapon.height = 10;
 	weapon.width = 15;
@@ -118,7 +120,7 @@ function createWeapon(group) {
 }
 
 function useWeapon() {
-	var weapon = this.player.activeWeapon,
+	var weapon = this.player.activeWeapon.sprite,
 		rotation = this.player.rotation,
 		x = this.player.position.x,
 		y = this.player.position.y;
@@ -143,6 +145,10 @@ Game.prototype.create = function () {
 		zombie,
 		i,
 		floor;
+
+	// Setup factories
+	this.zombieFactory = ZombieFactory.get(this.game);
+	this.weaponFactory = WeaponFactory.get(this.game);
 
 	// Setup visual scene
 	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
@@ -182,9 +188,9 @@ Game.prototype.create = function () {
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 
 	// Create weapon
-	this.player.activeWeapon = createWeapon.call(this);
-	this.player.activeWeapon.body.setCollisionGroup(weaponCollisionGroup);
-	this.player.activeWeapon.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
+	this.player.activeWeapon = this.weaponFactory.createPistol();
+	this.player.activeWeapon.sprite.body.setCollisionGroup(weaponCollisionGroup);
+	this.player.activeWeapon.sprite.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
 
 };
 
