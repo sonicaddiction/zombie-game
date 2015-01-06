@@ -1,31 +1,46 @@
-function Gun(game, key, speed, scale) {
-	this.sprite = game.add.sprite(0, 0, key);
+var NUMBER_OF_BULLETS = 10;
+
+function Gun(game, key, speed, shotDelay, scale) {
+	var i,
+		sprite;
+	
+	this.game = game;
 	this.speed = speed;
+	this.shotDelay = shotDelay;
+	this.bulletPool = game.add.group();
+	this.bulletPool.enableBody = true;
+	this.bulletPool.physicsBodyType = Phaser.Physics.P2JS;
 
-	if (scale) {
-		this.sprite.scale.setTo(scale);
+	for (i = 0; i < NUMBER_OF_BULLETS; i++) {
+		sprite = game.add.sprite(0, 0, key);
+		if (scale) {
+			sprite.scale.setTo(scale);
+		}
+		this.bulletPool.add(sprite);
+		sprite.kill();
 	}
-
-	game.physics.p2.enable(this.sprite);
-	this.sprite.kill();
 }
 
 Gun.prototype.fire = function (fromSprite) {
-	var weapon = fromSprite.activeWeapon.sprite,
-		rotation = fromSprite.rotation,
+	var rotation = fromSprite.rotation,
 		x = fromSprite.position.x,
-		y = fromSprite.position.y;
+		y = fromSprite.position.y,
+		bullet = this.bulletPool.getFirstDead();
 
-	if (this.sprite.alive) return;
+    if (this.lastBulletShotAt === undefined) this.lastBulletShotAt = 0;
+    if (this.game.time.now - this.lastBulletShotAt < this.shotDelay) return;
+    this.lastBulletShotAt = this.game.time.now;
 
-	this.sprite.body.rotation = rotation;
-	this.sprite.body.x = x;
-	this.sprite.body.y = y;
-	this.sprite.body.setZeroRotation();
+	if (bullet === null || bullet === undefined) return;
 
-	this.sprite.revive();
+	bullet.body.rotation = rotation;
+	bullet.body.x = x;
+	bullet.body.y = y;
+	bullet.body.setZeroRotation();
 
-	this.sprite.body.moveForward(1000);
+	bullet.revive();
+
+	bullet.body.moveForward(1000);
 }
 
 module.exports = Gun;

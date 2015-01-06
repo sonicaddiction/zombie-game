@@ -187,9 +187,11 @@ Game.prototype.create = function () {
 
 	// Create weapon
 	this.player.activeWeapon = this.weaponFactory.createPistol();
-	this.player.activeWeapon.sprite.body.setCollisionGroup(weaponCollisionGroup);
-	this.player.activeWeapon.sprite.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
-	this.player.activeWeapon.sprite.body.collides(wallCollisionGroup, bulletHitWall, this);
+	this.player.activeWeapon.bulletPool.forEach(function (bullet) {
+		bullet.body.setCollisionGroup(weaponCollisionGroup);
+		bullet.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
+		bullet.body.collides(wallCollisionGroup, bulletHitWall, this);
+	});
 
 };
 
