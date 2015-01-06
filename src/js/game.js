@@ -83,6 +83,7 @@ function getAngle(body1, body2) {
 }
 
 function zombieCollision(player, zombie) {
+	console.log('Crunch crunch crunch');
 }
 
 function clickedZombie(zombie) {
@@ -177,10 +178,13 @@ Game.prototype.create = function () {
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
 	for (i = 0; i < 10; i++) {
-		zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY, clickedZombie);
+		zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
 		zombie.body.setCollisionGroup(zombieCollisionGroup);
 		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 	}
+
+	this.zombies.setAll('inputEnabled', true);
+	this.zombies.callAll('events.onInputDown.add', 'events.onInputDown', clickedZombie, this);
 
 	// Create player
 	this.player = setupPlayer.call(this);

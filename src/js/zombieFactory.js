@@ -7,13 +7,10 @@ ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 
 	zombie = group.create(x, y, 'zombie');
 	zombie.scale.setTo(1.4);
-	zombie.health = 12;
+	zombie.health = 600;
 
 	zombie.body.damping = 0.9;
 	zombie.body.angularDamping = 0.9;
-
-	zombie.inputEnabled = true;
-	zombie.events.onInputDown.add(clickCallback, this);
 	
 	return zombie;
 }
