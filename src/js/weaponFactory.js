@@ -5,15 +5,7 @@ function WeaponFactory(game) {
 }
 
 WeaponFactory.prototype.createPistol = function () {
-	var gun,
-		sprite = this.game.add.sprite(0, 0, 'bullet');
-
-	sprite.height = 10;
-	sprite.width = 15;
-	this.game.physics.p2.enable(sprite);
-	sprite.kill();
-
-	gun = new Gun(sprite, 1000);
+	var gun = new Gun(this.game, 'bullet', 1000, 0.5);
 	
 	return gun;
 }

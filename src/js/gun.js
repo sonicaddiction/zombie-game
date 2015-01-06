@@ -1,6 +1,13 @@
-function Gun(sprite, speed) {
-	this.sprite = sprite;
+function Gun(game, key, speed, scale) {
+	this.sprite = game.add.sprite(0, 0, key);
 	this.speed = speed;
+
+	if (scale) {
+		this.sprite.scale.setTo(scale);
+	}
+
+	game.physics.p2.enable(this.sprite);
+	this.sprite.kill();
 }
 
 Gun.prototype.fire = function (fromSprite) {
