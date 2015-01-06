@@ -39,7 +39,7 @@ function checkKeys() {
     }
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-    	useWeapon.call(this);
+    	this.player.activeWeapon.fire(this.player);
     }
 }
 
@@ -99,44 +99,6 @@ function hitZombieWithWeapon(bullet, zombie) {
 	var damage = this.speed = Math.sqrt(bullet.velocity.x * bullet.velocity.x + bullet.velocity.y * bullet.velocity.y);
 	bullet.sprite.kill();
 	zombie.sprite.damage(damage);
-}
-
-function createWeapon(group) {
-	var weapon = this.game.add.sprite(0, 0, 'bullet');
-
-	weapon.height = 10;
-	weapon.width = 15;
-
-	this.game.physics.p2.enable(weapon);
-	weapon.body.mass = 100;
-	weapon.body.bounce = 0.001;
-	
-	weapon.damageRoll = function () {
-		return this.game.rnd.realInRange(1, 6) + this.game.rnd.realInRange(1, 6);
-	}
-	
-	weapon.kill();
-
-	return weapon;
-}
-
-function useWeapon() {
-	var weapon = this.player.activeWeapon.sprite,
-		rotation = this.player.rotation,
-		x = this.player.position.x,
-		y = this.player.position.y;
-
-	if (weapon.alive) return;
-
-	weapon.body.rotation = rotation;
-	weapon.body.x = x;
-	weapon.body.y = y;
-	weapon.body.setZeroRotation();
-
-	weapon.revive();
-
-	weapon.body.moveForward(1000);
-	
 }
 
 Game.prototype.create = function () {
