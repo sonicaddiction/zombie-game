@@ -43,21 +43,29 @@ function createZombie(group, x, y) {
 	zombie = group.create(x, y, 'zombie');
 	zombie.height = 30;
 	zombie.width = 30;
+
+	zombie.body.damping = 0.9;
+	zombie.body.angularDamping = 0.9;
 	
 	return zombie;
 }
 
 function moveZombies() {
 	var x = this.player.body.x,
-		y = this.player.body.y;
+		y = this.player.body.y,
+		that = this,
+		index = 0;
 
 	this.zombies.forEachAlive(function (zombie) {
 		var dx = x - zombie.body.x,
 			dy = y - zombie.body.y,
-			angle = Math.atan2(dy, dx);
+			angle = Math.atan2(dy, dx),
+			elapsedTime = that.game.time.totalElapsedSeconds(),
+			random = that.game.rnd.realInRange(15, 25);
 
 		zombie.body.rotation = angle + Math.PI/2;
-		zombie.body.moveForward(10);
+		zombie.body.moveForward(Math.max(Math.sin(elapsedTime*4+index)*random, 0));
+		index++;
 	});
 }
 
@@ -104,7 +112,8 @@ Game.prototype.create = function () {
 	var zombieCollisionGroup,
 		playerCollisionGroup,
 		weaponCollisionGroup,
-		zombie;
+		zombie,
+		i;
 
 	// Setup visual scene
 	this.game.stage.backgroundColor = 0x4488cc;
@@ -125,11 +134,11 @@ Game.prototype.create = function () {
 	this.zombies.enableBody = true;
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
-	zombie = createZombie(this.zombies, 400, 300);
-	zombie.body.damping = 0.9;
-	zombie.body.angularDamping = 0.9;
-	zombie.body.setCollisionGroup(zombieCollisionGroup);
-	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
+	for (i = 0; i < 10; i++) {
+		zombie = createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
+		zombie.body.setCollisionGroup(zombieCollisionGroup);
+		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
+	}
 
 	// Create player
 	this.player = setupPlayer.call(this);
