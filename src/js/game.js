@@ -86,13 +86,17 @@ function zombieCollision(player, zombie) {
 	console.log('Crunch crunch crunch');
 }
 
-function clickedZombie(zombie) {
+function focusOnZombie(zombie) {
 	var angle = getAngle(zombie.body, this.player.body);
 
 	this.player.body.rotation = angle + Math.PI / 2;
 
 	this.selectedObject = zombie;
 	this.selectionMarker.drawCircle(0, 0, Math.max(zombie.width, zombie.height) + 30);
+}
+
+function releaseFocusOnZombie(zombie) {
+	this.selectedObject = null;
 }
 
 function hitZombieWithWeapon(bullet, zombie) {
@@ -146,7 +150,8 @@ Game.prototype.create = function () {
 	}
 
 	this.zombies.setAll('inputEnabled', true);
-	this.zombies.callAll('events.onInputDown.add', 'events.onInputDown', clickedZombie, this);
+	this.zombies.callAll('events.onInputDown.add', 'events.onInputDown', focusOnZombie, this);
+	this.zombies.callAll('events.onInputDown.add', 'events.onInputUp', releaseFocusOnZombie, this);
 
 	// Create player
 	this.player = setupPlayer.call(this);
