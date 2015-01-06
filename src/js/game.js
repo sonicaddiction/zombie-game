@@ -58,6 +58,7 @@ function createZombie(group, x, y) {
 	zombie = group.create(x, y, 'zombie');
 	zombie.height = 30;
 	zombie.width = 30;
+	zombie.health = 12;
 
 	zombie.body.damping = 0.9;
 	zombie.body.angularDamping = 0.9;
@@ -88,7 +89,9 @@ function zombieCollision(player, zombie) {
 }
 
 function hitZombieWithWeapon(bullet, zombie) {
+	var damageRoll = bullet.sprite.damageRoll();
 	bullet.sprite.kill();
+	zombie.sprite.damage(damageRoll);
 }
 
 function createWeapon(group) {
@@ -99,6 +102,11 @@ function createWeapon(group) {
 
 	this.game.physics.p2.enable(weapon);
 	weapon.body.mass = 100;
+	
+	weapon.damageRoll = function () {
+		return this.game.rnd.realInRange(1, 6) + this.game.rnd.realInRange(1, 6);
+	}
+	
 	weapon.kill();
 
 	return weapon;
