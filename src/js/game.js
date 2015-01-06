@@ -10,13 +10,27 @@ function Game() {
 function checkKeys() {
 	var cursors = this.game.input.keyboard.createCursorKeys();
 
-	if (cursors.left.isDown) {this.player.body.rotateLeft(100);}
-    else if (cursors.right.isDown){this.player.body.rotateRight(100);}
+	if (cursors.left.isDown) {
+		this.player.body.rotateLeft(100);
+	}
+    else if (cursors.right.isDown) {
+    	this.player.body.rotateRight(100);
+    }
     else {this.player.body.setZeroRotation();}
     
-    if (cursors.up.isDown){this.player.body.moveForward(PLAYER_SPEED);}
-    else if (cursors.down.isDown){this.player.body.moveBackward(PLAYER_SPEED);}
-    else {this.player.body.setZeroVelocity();}
+    if (cursors.up.isDown) {
+    	this.player.body.moveForward(PLAYER_SPEED);
+    	this.player.animations.play('walk', 25, true);
+    }
+    else if (cursors.down.isDown) {
+    	this.player.body.moveBackward(PLAYER_SPEED);
+    	this.player.animations.play('walk', 25, true);
+    }
+    else {
+    	this.player.body.setZeroVelocity();
+    	this.player.animations.stop('walk');
+    	this.player.frame = 4;
+    }
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
     	useWeapon.call(this);
@@ -26,11 +40,12 @@ function checkKeys() {
 function setupPlayer() {
 	var x = this.game.width / 2,
 		y = this.game.height / 2,
-		player = this.add.sprite(x, y, 'player');
+		player = this.add.sprite(100, 100, 'player_walking');
 	
 	player.anchor.setTo(0.5, 0.5);
-	player.height = 30;
-	player.width = 30;
+	player.scale.set(0.6);
+	player.animations.add('walk');
+	player.frame = 4;
 
 	this.game.physics.p2.enable(player);
 
@@ -83,7 +98,7 @@ function createWeapon(group) {
 	weapon.width = 15;
 
 	this.game.physics.p2.enable(weapon);
-	weapon.body.mass = 0.01;
+	weapon.body.mass = 100;
 	weapon.kill();
 
 	return weapon;
@@ -149,6 +164,7 @@ Game.prototype.create = function () {
 	this.player.activeWeapon = createWeapon.call(this);
 	this.player.activeWeapon.body.setCollisionGroup(weaponCollisionGroup);
 	this.player.activeWeapon.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
+
 };
 
 Game.prototype.update = function () {
