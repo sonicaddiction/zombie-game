@@ -11,8 +11,10 @@ ObstacleFactory.prototype.setCollidesWith = function (collidesWith) {
 ObstacleFactory.prototype.createWall = function (x, y, width, height) {
 	var wall = new Phaser.TileSprite(this.group.game, x, y, width, height, 'bricks');
 	this.group.add(wall);
+	wall.anchor.setTo(0, 0);
 	wall.tint = 0x999999;
 	wall.body.static = true;
+	wall.body.setRectangle(width, height, width/2, height/2);
 	wall.body.setCollisionGroup(this.collisionGroup);
 	wall.body.collides(this.collidesWith);
 

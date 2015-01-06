@@ -3,8 +3,7 @@ var ZombieFactory = require('./zombieFactory.js'),
 	obstacleFactory = require('./obstacleFactory.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 3,
-	WALL_WIDTH = 6,
-	PADDING = WALL_WIDTH / 2;
+	WALL_WIDTH = 15;
 
 function Game() {
 	this.player = null;
@@ -108,6 +107,10 @@ function hitZombieWithWeapon(bullet, zombie) {
 	zombie.sprite.damage(damage);
 }
 
+function bulletHitWall(bullet) {
+	bullet.sprite.kill();
+}
+
 Game.prototype.create = function () {
 	var zombieCollisionGroup,
 		playerCollisionGroup,
@@ -151,12 +154,15 @@ Game.prototype.create = function () {
 	this.obstacleFactory = obstacleFactory.get(this.walls, wallCollisionGroup);
 	
 	this.obstacleFactory.setCollidesWith([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
-	this.obstacleFactory.createWall(PADDING, PADDING, WALL_WIDTH, this.game.world.height*2); //left
-	this.obstacleFactory.createWall(this.game.world.width - PADDING, PADDING, WALL_WIDTH, this.game.world.height*2); //right
-	this.obstacleFactory.createWall(PADDING, PADDING, this.game.world.width*2, WALL_WIDTH);
-	this.obstacleFactory.createWall(PADDING, this.game.world.height - PADDING, this.game.world.width*2, WALL_WIDTH);
 
-	console.log(this.game);
+	this.obstacleFactory.createWall(0, 0, WALL_WIDTH, this.game.world.height);
+	this.obstacleFactory.createWall(this.game.world.width - WALL_WIDTH, 0, WALL_WIDTH, this.game.world.height);
+	this.obstacleFactory.createWall(0, 0, this.game.world.width, WALL_WIDTH);
+	this.obstacleFactory.createWall(0, this.game.world.height - WALL_WIDTH, this.game.world.width, WALL_WIDTH);
+	
+	this.obstacleFactory.createWall(0, 150, 50, WALL_WIDTH);
+	this.obstacleFactory.createWall(120, 150, 80, WALL_WIDTH);
+	this.obstacleFactory.createWall(200, 0, WALL_WIDTH, 150 + WALL_WIDTH);
 
 	// Create zombies
 	this.zombies = this.game.add.group();
@@ -183,7 +189,7 @@ Game.prototype.create = function () {
 	this.player.activeWeapon = this.weaponFactory.createPistol();
 	this.player.activeWeapon.sprite.body.setCollisionGroup(weaponCollisionGroup);
 	this.player.activeWeapon.sprite.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
-	this.player.activeWeapon.sprite.body.collides(wallCollisionGroup);
+	this.player.activeWeapon.sprite.body.collides(wallCollisionGroup, bulletHitWall, this);
 
 };
 
