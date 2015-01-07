@@ -2,7 +2,7 @@ var ZombieFactory = require('./zombieFactory.js'),
 	WeaponFactory = require('./weaponFactory.js'),
 	obstacleFactory = require('./obstacleFactory.js'),
 	PLAYER_SPEED = 100,
-	FLOOR_SCALE = 3,
+	FLOOR_SCALE = 5,
 	WALL_WIDTH = 15;
 
 function Game() {
@@ -119,7 +119,8 @@ Game.prototype.create = function () {
 		zombie,
 		wall,
 		i,
-		floor;
+		floor,
+		layer;
 
 	// Setup factories
 	this.zombieFactory = ZombieFactory.get(this.game);
@@ -148,7 +149,9 @@ Game.prototype.create = function () {
 	wallCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
 	// Create walls
+	
 	this.walls = this.game.add.group();
+	/*
 	this.walls.enableBody = true;
 	this.walls.physicsBodyType = Phaser.Physics.P2JS;
 	this.obstacleFactory = obstacleFactory.get(this.walls, wallCollisionGroup);
@@ -163,16 +166,29 @@ Game.prototype.create = function () {
 	this.obstacleFactory.createWall(0, 150, 50, WALL_WIDTH);
 	this.obstacleFactory.createWall(120, 150, 80, WALL_WIDTH);
 	this.obstacleFactory.createWall(200, 0, WALL_WIDTH, 150 + WALL_WIDTH);
+	*/
+
+	this.map = this.game.add.tilemap('map');
+	this.map.addTilesetImage('ground_1x1');
+
+	layer = this.map.createLayer('Tile Layer 1');
+	this.map.setCollisionBetween(1, 12);
+
+	this.walls = this.game.physics.p2.convertTilemap(this.map, layer);
+	this.walls.forEach(function (wall) {
+		wall.setCollisionGroup(wallCollisionGroup);
+		wall.collides([playerCollisionGroup]);
+	});
 
 	// Create zombies
 	this.zombies = this.game.add.group();
 	this.zombies.enableBody = true;
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 	
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < 0; i++) {
 		zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
 		zombie.body.setCollisionGroup(zombieCollisionGroup);
-		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);
+		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 	}
 
 	this.zombies.setAll('inputEnabled', true);
@@ -190,7 +206,7 @@ Game.prototype.create = function () {
 	this.player.activeWeapon.bulletPool.forEach(function (bullet) {
 		bullet.body.setCollisionGroup(weaponCollisionGroup);
 		bullet.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
-		bullet.body.collides(wallCollisionGroup, bulletHitWall, this);
+		//bullet.body.collides(wallCollisionGroup, bulletHitWall, this);
 	});
 
 };
