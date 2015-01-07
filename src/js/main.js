@@ -11,7 +11,7 @@ window.onload = function () {
 	game = new Phaser.Game(640, 480, Phaser.AUTO, 'zombies-game');
 	game.state.add('boot', Boot);
 	game.state.add('preloader', Preloader);
-	game.state.add('menu', Game);
+	game.state.add('menu', Menu);
 	game.state.add('game', Game);
 
 	game.state.start('boot');

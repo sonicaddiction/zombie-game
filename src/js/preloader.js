@@ -29,8 +29,10 @@ Preloader.prototype.preload = function () {
 	this.load.image('bricks', 'assets/brick.png');
 	this.load.image('bullet', 'assets/bullet.png');
 	this.load.image('floor', 'assets/checkered_floor.jpg');
+	this.load.image('ground_1x1', 'assets/ground_1x1.png');
 	this.load.spritesheet('player_walking', 'assets/player_walking.png', 88, 98, 15);
 	this.load.bitmapFont('minecraftia', 'assets/minecraftia.png', 'assets/minecraftia.xml');
+	this.load.tilemap('map', 'assets/tileMap.json', null, Phaser.Tilemap.TILED_JSON);
 }
 
 exports.Preloader = Preloader;
