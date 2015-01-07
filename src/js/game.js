@@ -188,7 +188,7 @@ Game.prototype.create = function () {
 	for (i = 0; i < 0; i++) {
 		zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
 		zombie.body.setCollisionGroup(zombieCollisionGroup);
-		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);
+		zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup]);
 	}
 
 	this.zombies.setAll('inputEnabled', true);
