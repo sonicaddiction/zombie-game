@@ -7,13 +7,10 @@ function getAngle(body1, body2) {
 	return Math.atan2(dy, dx);
 }
 
-function Gun(game, key, speed, shotDelay, damageRollCallback) {
-	var i,
-		sprite;
-	
+function Gun(game, shotDelay, damageRollCallback) {
 	this.game = game;
-	this.speed = speed;
 	this.shotDelay = shotDelay;
+	this.damageRollCallback = damageRollCallback;
 }
 
 Gun.prototype.setOwner = function (sprite) {
@@ -32,6 +29,12 @@ Gun.prototype.muzzleFlash = function (angle) {
 	sprite.scale.setTo(0.1);
 	sprite.rotation = angle + Math.PI;
 	sprite.lifespan = 30;
+}
+
+Gun.prototype.calcHit = function (target) {
+	var damage = this.damageRollCallback();
+	console.log(target.name, 'hit for', damage, 'points of damage.');
+	target.damage(damage);
 }
 
 Gun.prototype.fireVector = function (target, layer) {
@@ -57,6 +60,9 @@ Gun.prototype.fireVector = function (target, layer) {
     	console.log('hit wall');
     	return;
     }
+
+    // Damage
+    this.calcHit(target);
 
     // Impact with target
     angle = getAngle(this.owner, target);
