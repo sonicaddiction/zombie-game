@@ -67,9 +67,15 @@ function moveZombies() {
 		index = 0;
 
 	this.zombies.forEachAlive(function (zombie) {
-		var angle = getAngle(that.player.body, zombie.body);
+		var angle = getAngle(that.player.body, zombie.body),
 			elapsedTime = that.game.time.totalElapsedSeconds(),
-			random = that.game.rnd.realInRange(15, 25);
+			random = that.game.rnd.realInRange(15, 25),
+			dt;
+
+		if (zombie.lastTimeHit) {
+			dt = that.game.time.now - zombie.lastTimeHit;
+			if (dt < 1000) return;
+		}
 
 		zombie.body.rotation = angle + Math.PI/2;
 		zombie.body.moveForward(Math.max(Math.sin(elapsedTime*4+index)*random, 0));
@@ -102,9 +108,15 @@ function releaseFocusOnZombie(zombie) {
 }
 
 function hitZombieWithWeapon(bullet, zombie) {
-	var damage = this.speed = Math.sqrt(bullet.velocity.x * bullet.velocity.x + bullet.velocity.y * bullet.velocity.y);
+	var damage = Math.sqrt(bullet.velocity.x * bullet.velocity.x + bullet.velocity.y * bullet.velocity.y),
+		game = bullet.sprite.game;
+
+	if (bullet.sprite.collisionCount > 0) return;
+
+	bullet.sprite.collisionCount += 1;
 	bullet.sprite.kill();
 	zombie.sprite.damage(damage);
+	zombie.sprite.lastTimeHit = game.time.now;
 }
 
 function bulletHitWall(bullet) {
@@ -120,7 +132,8 @@ Game.prototype.create = function () {
 		wall,
 		i,
 		floor,
-		layer;
+		layer,
+		eligibleZombieSpawnTiles = [];
 
 	// Setup factories
 	this.zombieFactory = ZombieFactory.get(this.game);
@@ -149,15 +162,15 @@ Game.prototype.create = function () {
 	wallCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
 	// Create walls
-	this.map = this.game.add.tilemap('map');
-	this.map.addTilesetImage('ground_1x1');
+	this.tileMap = this.game.add.tilemap('map');
+	this.tileMap.addTilesetImage('ground_1x1');
 
-	this.wallLayer = this.map.createLayer('Walls');
-	// this.spawnLayer = this.map.createLayer('SpawnPoints');
+	this.wallLayer = this.tileMap.createLayer('Walls');
+	// this.spawnLayer = this.tileMap.createLayer('SpawnPoints');
 	// this.spawnLayer.visible = false;
-	this.map.setCollisionBetween(1, 23);
+	this.tileMap.setCollisionBetween(1, 23);
 
-	this.walls = this.game.physics.p2.convertTilemap(this.map, this.wallLayer);
+	this.walls = this.game.physics.p2.convertTilemap(this.tileMap, this.wallLayer);
 	this.walls.forEach(function (wall) {
 		wall.setCollisionGroup(wallCollisionGroup);
 		wall.collides([playerCollisionGroup, zombieCollisionGroup, weaponCollisionGroup]);
@@ -168,19 +181,18 @@ Game.prototype.create = function () {
 	this.zombies.enableBody = true;
 	this.zombies.physicsBodyType = Phaser.Physics.P2JS;
 
-	this.map.forEach(function (tile) {
-		if (tile.index === -1 && tile.x > 21 && tile.y > 17 ) {
-			zombie = this.zombieFactory.createZombie(this.zombies, tile.worldX, tile.worldY);
-			zombie.body.setCollisionGroup(zombieCollisionGroup);
-			zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);			
-		}
+	this.tileMap.forEach(function (tile) {
+		if (tile.index === 1) return;
+		if (tile.worldX < 320 && tile.worldY < 320) return;
+		eligibleZombieSpawnTiles.push(tile);
 	}, this);
 
-	// for (i = 0; i < 0; i++) {
-	// 	zombie = this.zombieFactory.createZombie(this.zombies, this.game.world.randomX, this.game.world.randomY);
-	// 	zombie.body.setCollisionGroup(zombieCollisionGroup);
-	// 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);
-	// }
+	for (i = 0; i < 20; i++) {
+		var spawnTile = this.game.rnd.pick(eligibleZombieSpawnTiles);
+		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16);
+	 	zombie.body.setCollisionGroup(zombieCollisionGroup);
+	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);
+	}
 
 	this.zombies.setAll('inputEnabled', true);
 	this.zombies.callAll('events.onInputDown.add', 'events.onInputDown', focusOnZombie, this);

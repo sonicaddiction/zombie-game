@@ -33,6 +33,7 @@ Gun.prototype.fire = function (fromSprite) {
 
 	if (bullet === null || bullet === undefined) return;
 
+	bullet.collisionCount = 0; //Reset number of times bullet has collided
 	bullet.body.rotation = rotation;
 	bullet.body.x = x;
 	bullet.body.y = y;
@@ -40,7 +41,7 @@ Gun.prototype.fire = function (fromSprite) {
 
 	bullet.revive();
 
-	bullet.body.moveForward(1000);
+	bullet.body.moveForward(this.speed);
 }
 
 module.exports = Gun;
