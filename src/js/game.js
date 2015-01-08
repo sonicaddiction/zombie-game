@@ -166,8 +166,6 @@ Game.prototype.create = function () {
 	this.tileMap.addTilesetImage('ground_1x1');
 
 	this.wallLayer = this.tileMap.createLayer('Walls');
-	// this.spawnLayer = this.tileMap.createLayer('SpawnPoints');
-	// this.spawnLayer.visible = false;
 	this.tileMap.setCollisionBetween(1, 23);
 
 	this.walls = this.game.physics.p2.convertTilemap(this.tileMap, this.wallLayer);
