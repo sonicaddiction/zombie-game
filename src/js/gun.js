@@ -33,8 +33,7 @@ Gun.prototype.muzzleFlash = function (angle) {
 
 Gun.prototype.calcHit = function (target) {
 	var damage = this.damageRollCallback();
-	console.log(target.name, 'hit for', damage, 'points of damage.');
-	target.damage(damage);
+	target.events.onHit.dispatch(damage);
 }
 
 Gun.prototype.fireVector = function (target, layer) {
@@ -69,10 +68,6 @@ Gun.prototype.fireVector = function (target, layer) {
     this.muzzleFlash(angle);
     target.lastTimeHit = target.game.time.now;
     target.body.applyForce([force * Math.cos(angle),force * Math.sin(angle),0], target.body.x, target.body.y);
-
-    blood = this.game.add.sprite(target.x, target.y, 'blood', this.game.rnd.integerInRange(1, 13));
-    blood.scale.setTo(0.2);
-    blood.anchor.set(0.5, 0.5);
 }
 
 module.exports = Gun;

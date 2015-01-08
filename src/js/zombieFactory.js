@@ -3,6 +3,23 @@ function ZombieFactory(game) {
 	this.zombieCount = 0;
 }
 
+function zombieDeath() {
+	var blood = this.game.add.sprite(this.x, this.y, 'blood', this.game.rnd.integerInRange(1, 13));
+    blood.scale.setTo(0.5);
+    blood.anchor.set(0.5, 0.5);
+
+	console.log('zombie died');
+}
+
+function zombieHit(damage) {
+	var blood = this.game.add.sprite(this.x, this.y, 'blood', this.game.rnd.integerInRange(1, 13));
+    blood.scale.setTo(0.2);
+    blood.anchor.set(0.5, 0.5);
+
+    console.log(this.name, 'hit for', damage, 'points of damage.');
+	this.damage(damage);
+}
+
 ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 	var zombie;
 
@@ -15,6 +32,10 @@ ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 	zombie.body.angularDamping = 0.9;
 	zombie.name = 'Zombie #' + this.zombieCount;
 	this.zombieCount++;
+
+	zombie.events.onKilled.add(zombieDeath, zombie);
+	zombie.events.onHit = new Phaser.Signal();
+	zombie.events.onHit.add(zombieHit, zombie);
 
 	return zombie;
 }
