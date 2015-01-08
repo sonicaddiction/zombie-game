@@ -7,9 +7,9 @@ ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 
 	zombie = group.create(x, y, 'zombie');
 	zombie.scale.setTo(1.4);
-	zombie.health = 600;
+	zombie.health = 18;
 
-	zombie.body.mass = 80;
+	zombie.body.mass = 1;
 	zombie.body.damping = 0.9;
 	zombie.body.angularDamping = 0.9;
 	

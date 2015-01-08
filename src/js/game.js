@@ -41,7 +41,9 @@ function checkKeys() {
     }
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
-    	this.player.activeWeapon.fire(this.player);
+    	if (this.selectedObject) {
+    		this.player.activeWeapon.fireVector(this.selectedObject, this.wallLayer);
+    	}
     }
 }
 
@@ -107,18 +109,6 @@ function releaseFocusOnZombie(zombie) {
 	this.selectedObject = null;
 }
 
-function hitZombieWithWeapon(bullet, zombie) {
-	var damage = Math.sqrt(bullet.velocity.x * bullet.velocity.x + bullet.velocity.y * bullet.velocity.y),
-		game = bullet.sprite.game;
-
-	if (bullet.sprite.collisionCount > 0) return;
-
-	bullet.sprite.collisionCount += 1;
-	bullet.sprite.kill();
-	zombie.sprite.damage(damage);
-	zombie.sprite.lastTimeHit = game.time.now;
-}
-
 function bulletHitWall(bullet) {
 	bullet.sprite.kill();
 }
@@ -126,7 +116,6 @@ function bulletHitWall(bullet) {
 Game.prototype.create = function () {
 	var zombieCollisionGroup,
 		playerCollisionGroup,
-		weaponCollisionGroup,
 		wallCollisionGroup,
 		zombie,
 		wall,
@@ -158,7 +147,6 @@ Game.prototype.create = function () {
 
 	zombieCollisionGroup = this.game.physics.p2.createCollisionGroup();
 	playerCollisionGroup = this.game.physics.p2.createCollisionGroup();
-	weaponCollisionGroup = this.game.physics.p2.createCollisionGroup();
 	wallCollisionGroup = this.game.physics.p2.createCollisionGroup();
 
 	// Create walls
@@ -171,7 +159,7 @@ Game.prototype.create = function () {
 	this.walls = this.game.physics.p2.convertTilemap(this.tileMap, this.wallLayer);
 	this.walls.forEach(function (wall) {
 		wall.setCollisionGroup(wallCollisionGroup);
-		wall.collides([playerCollisionGroup, zombieCollisionGroup, weaponCollisionGroup]);
+		wall.collides([playerCollisionGroup, zombieCollisionGroup]);
 	});
 
 	// Create zombies
@@ -189,7 +177,7 @@ Game.prototype.create = function () {
 		var spawnTile = this.game.rnd.pick(eligibleZombieSpawnTiles);
 		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16);
 	 	zombie.body.setCollisionGroup(zombieCollisionGroup);
-	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, weaponCollisionGroup, wallCollisionGroup]);
+	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, wallCollisionGroup]);
 	}
 
 	this.zombies.setAll('inputEnabled', true);
@@ -204,12 +192,7 @@ Game.prototype.create = function () {
 
 	// Create weapon
 	this.player.activeWeapon = this.weaponFactory.createPistol();
-	this.player.activeWeapon.bulletPool.forEach(function (bullet) {
-		bullet.body.setCollisionGroup(weaponCollisionGroup);
-		bullet.body.collides(zombieCollisionGroup, hitZombieWithWeapon, this);
-		bullet.body.collides(wallCollisionGroup, bulletHitWall, this);
-	});
-
+	this.player.activeWeapon.setOwner(this.player);
 };
 
 function renderSelectionMarker() {

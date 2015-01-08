@@ -5,7 +5,9 @@ function WeaponFactory(game) {
 }
 
 WeaponFactory.prototype.createPistol = function () {
-	var gun = new Gun(this.game, 'bullet', 1000, 1000, 0.5);
+	var gun = new Gun(this.game, 'bullet', 1000, 1000, function () {
+		return 10;
+	});
 	gun.name = 'Pistol';
 
 	return gun;
