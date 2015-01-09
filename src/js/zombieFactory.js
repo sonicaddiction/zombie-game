@@ -42,9 +42,15 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 	zombie.events.onHit.add(zombieHit, zombie);
 
 	zombie.update = function () {
-		var angle = Helper.getAngle(zombie, player) - Math.PI/2;
+		var angle = Helper.getAngle(zombie, player) - Math.PI/2,
+			hasLineOfSight = Helper.hasLoS(zombie, player, layer);
 
-		Helper.checkVisibility(zombie, player, layer);
+		if(!hasLineOfSight) {
+			zombie.visible = false;
+		} else if (hasLineOfSight && zombie.alive) {
+			zombie.visible = true;
+		}
+			
 
 		if (zombie.lastTimeHit) {
 			dt = that.game.time.now - zombie.lastTimeHit;

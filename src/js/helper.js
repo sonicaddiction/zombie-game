@@ -1,14 +1,10 @@
-function checkVisibility(zombie, player, layer) {
+function hasLoS(object1, object2, layer) {
     // Check for wall collisions
-    var vector = new Phaser.Line(player.x, player.y, zombie.x, zombie.y);
+    var vector = new Phaser.Line(object1.x, object1.y, object2.x, object2.y);
     //game.debug.geom(vector)
 	var tileHits = layer.getRayCastTiles(vector, 4, true, false);
 
-	if (tileHits.length > 0) {
-		zombie.visible = false;
-	} else if (zombie.alive) {
-		zombie.visible = true;
-	}
+	return tileHits.length === 0;
 }
 
 
@@ -20,6 +16,6 @@ function getAngle(body1, body2) {
 }
 
 module.exports = {
-	checkVisibility: checkVisibility,
+	hasLoS: hasLoS,
 	getAngle: getAngle
 };
