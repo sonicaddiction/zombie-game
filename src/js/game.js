@@ -94,6 +94,7 @@ Game.prototype.create = function () {
 	this.weaponFactory = WeaponFactory.get(this.game);
 
 	// Setup visual scene
+	this.game.world.setBounds(0, 0, 800, 640);
 	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
 	floor.scale.set(1/FLOOR_SCALE);
 	floor.tint = 0x666666;
@@ -133,6 +134,7 @@ Game.prototype.create = function () {
 	this.player.body.setCollisionGroup(playerCollisionGroup);
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 	this.player.body.collides(wallCollisionGroup);
+	this.game.camera.follow(this.player);
 
 	// Setup noise events
 	this.noise = new Phaser.Signal();

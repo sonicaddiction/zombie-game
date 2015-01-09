@@ -8,7 +8,7 @@ window.onload = function () {
 
 	var game;
 
-	game = new Phaser.Game(800, 640, Phaser.AUTO, 'zombies-game');
+	game = new Phaser.Game(400, 400, Phaser.AUTO, 'zombies-game');
 	game.state.add('boot', Boot);
 	game.state.add('preloader', Preloader);
 	game.state.add('menu', Game);
