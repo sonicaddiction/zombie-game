@@ -4,7 +4,8 @@ var ZombieFactory = require('./zombieFactory.js'),
 	Helper = require('./helper.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 5,
-	WALL_WIDTH = 15;
+	WALL_WIDTH = 15,
+	createPlayer = require('./player').createPlayer;
 
 function Game() {
 	this.player = null;
@@ -49,22 +50,6 @@ function checkKeys() {
     }
 }
 
-function setupPlayer() {
-	var x = this.game.width / 2,
-		y = this.game.height / 2,
-		player = this.add.sprite(500, 100, 'player_walking');
-	
-	player.anchor.setTo(0.5, 0.5);
-	player.scale.set(0.5);
-	player.animations.add('walk');
-	player.frame = 4;
-
-	this.game.physics.p2.enable(player);
-
-	player.body.setCircle(Math.min(player.width, player.height)/2);
-
-	return player;
-}
 
 function zombieCollision(player, zombie) {
 	console.log('Crunch crunch crunch');
@@ -140,7 +125,7 @@ Game.prototype.create = function () {
 	});
 
 	// Create player
-	this.player = setupPlayer.call(this);
+	this.player = createPlayer(this.game, 500, 100);
 	this.player.body.setCollisionGroup(playerCollisionGroup);
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 	this.player.body.collides(wallCollisionGroup);
