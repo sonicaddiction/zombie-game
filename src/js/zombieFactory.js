@@ -52,11 +52,11 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 			hasLineOfSight = Helper.hasLoS(zombie, player, layer),
 			seesPlayer;
 
-		// if(!hasLineOfSight) {
-		// 	zombie.visible = false;
-		// } else if (hasLineOfSight && zombie.alive) {
-		// 	zombie.visible = true;
-		// }			
+		if(!hasLineOfSight) {
+			zombie.visible = false;
+		} else if (hasLineOfSight && zombie.alive) {
+			zombie.visible = true;
+		}			
 
 		if (hasLineOfSight) {
 			zombie.target = {
