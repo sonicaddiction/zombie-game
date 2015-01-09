@@ -20,8 +20,16 @@ function zombieHit(damage) {
 	this.damage(damage);
 }
 
-ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
-	var zombie;
+function getAngle(body1, body2) {
+	var dx = body1.x - body2.x,
+		dy = body1.y - body2.y;
+
+	return Math.atan2(dy, dx);
+}
+
+ZombieFactory.prototype.createZombie = function (group, x, y, player) {
+	var zombie,
+		that = this;
 
 	zombie = group.create(x, y, 'zombie');
 	zombie.scale.setTo(1.4);
@@ -31,11 +39,24 @@ ZombieFactory.prototype.createZombie = function (group, x, y, clickCallback) {
 	zombie.body.damping = 0.9;
 	zombie.body.angularDamping = 0.9;
 	zombie.name = 'Zombie #' + this.zombieCount;
+	zombie.body.setCircle(Math.min(zombie.width, zombie.height)/1.4);
 	this.zombieCount++;
 
 	zombie.events.onKilled.add(zombieDeath, zombie);
 	zombie.events.onHit = new Phaser.Signal();
 	zombie.events.onHit.add(zombieHit, zombie);
+
+	zombie.update = function () {
+		var angle = getAngle(zombie, player) - Math.PI/2;
+			
+		if (zombie.lastTimeHit) {
+			dt = that.game.time.now - zombie.lastTimeHit;
+			if (dt < 1000) return;
+		}
+
+		zombie.body.rotation = angle;		
+		zombie.body.moveForward(10);
+	};
 
 	return zombie;
 }

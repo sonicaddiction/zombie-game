@@ -50,7 +50,7 @@ function checkKeys() {
 function setupPlayer() {
 	var x = this.game.width / 2,
 		y = this.game.height / 2,
-		player = this.add.sprite(100, 100, 'player_walking');
+		player = this.add.sprite(500, 100, 'player_walking');
 	
 	player.anchor.setTo(0.5, 0.5);
 	player.scale.set(0.5);
@@ -59,30 +59,9 @@ function setupPlayer() {
 
 	this.game.physics.p2.enable(player);
 
+	player.body.setCircle(Math.min(player.width, player.height)/2);
+
 	return player;
-}
-
-function moveZombies() {
-	var x = this.player.body.x,
-		y = this.player.body.y,
-		that = this,
-		index = 0;
-
-	this.zombies.forEachAlive(function (zombie) {
-		var angle = getAngle(that.player.body, zombie.body),
-			elapsedTime = that.game.time.totalElapsedSeconds(),
-			random = that.game.rnd.realInRange(15, 25),
-			dt;
-
-		if (zombie.lastTimeHit) {
-			dt = that.game.time.now - zombie.lastTimeHit;
-			if (dt < 1000) return;
-		}
-
-		zombie.body.rotation = angle + Math.PI/2;
-		zombie.body.moveForward(Math.max(Math.sin(elapsedTime*4+index)*random, 0));
-		index++;
-	});
 }
 
 function getAngle(body1, body2) {
@@ -162,6 +141,12 @@ Game.prototype.create = function () {
 		wall.collides([playerCollisionGroup, zombieCollisionGroup]);
 	});
 
+	// Create player
+	this.player = setupPlayer.call(this);
+	this.player.body.setCollisionGroup(playerCollisionGroup);
+	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
+	this.player.body.collides(wallCollisionGroup);
+
 	// Create zombies
 	this.zombies = this.game.add.group();
 	this.zombies.enableBody = true;
@@ -169,13 +154,12 @@ Game.prototype.create = function () {
 
 	this.tileMap.forEach(function (tile) {
 		if (tile.index === 1) return;
-		if (tile.worldX < 320 && tile.worldY < 320) return;
 		eligibleZombieSpawnTiles.push(tile);
 	}, this);
 
-	for (i = 0; i < 20; i++) {
+	for (i = 0; i < 10; i++) {
 		var spawnTile = this.game.rnd.pick(eligibleZombieSpawnTiles);
-		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16);
+		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16, this.player);
 	 	zombie.body.setCollisionGroup(zombieCollisionGroup);
 	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, wallCollisionGroup]);
 	}
@@ -183,12 +167,6 @@ Game.prototype.create = function () {
 	this.zombies.setAll('inputEnabled', true);
 	this.zombies.callAll('events.onInputDown.add', 'events.onInputDown', focusOnZombie, this);
 	this.zombies.callAll('events.onInputDown.add', 'events.onInputUp', releaseFocusOnZombie, this);
-
-	// Create player
-	this.player = setupPlayer.call(this);
-	this.player.body.setCollisionGroup(playerCollisionGroup);
-	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
-	this.player.body.collides(wallCollisionGroup);
 
 	// Create weapon
 	this.player.activeWeapon = this.weaponFactory.createPistol();
@@ -209,7 +187,7 @@ function renderSelectionMarker() {
 
 Game.prototype.update = function () {
 	checkKeys.call(this);
-	moveZombies.call(this);
+	//moveZombies.call(this);
 	renderSelectionMarker.call(this);
 };
 
