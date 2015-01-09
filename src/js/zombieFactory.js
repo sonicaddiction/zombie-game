@@ -48,7 +48,9 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 
 	zombie.update = function () {
 		var angle,
-			hasLineOfSight = Helper.hasLoS(zombie, player, layer);
+			da,
+			hasLineOfSight = Helper.hasLoS(zombie, player, layer),
+			seesPlayer;
 
 		// if(!hasLineOfSight) {
 		// 	zombie.visible = false;
@@ -68,8 +70,23 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 			if (dt < 1000) return;
 		}
 
-		if (zombie.target) {			
-			zombie.body.rotation = Helper.getAngle(zombie, zombie.target) - Math.PI/2;
+		if (zombie.target) {
+			angle = Helper.getAngle(zombie, zombie.target) - Math.PI/2;
+			da = zombie.body.rotation - angle;
+
+			if (zombie.body.rotation < 0) {
+				zombie.body.rotation += Math.PI * 2; 
+			} else if (zombie.body.rotation > Math.PI * 2) {
+				zombie.body.rotation -= Math.PI * 2;
+			}
+
+			if (da < -Math.PI) {
+				da = da + Math.PI*2;
+			} else if (da > Math.PI) {
+				da = da - Math.PI*2;
+			}
+
+			zombie.body.rotation -= da*0.05;
 			zombie.body.moveForward(10);
 
 			if (Helper.distance(zombie.target, zombie) < 3) {
