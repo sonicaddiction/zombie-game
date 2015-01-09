@@ -14,6 +14,7 @@ function Game() {
 	this.zombieFactory = null;
 	this.weaponFactory = null;
 	this.obstacleFactory = null;
+	this.mainGroup = null;
 }
 
 function checkKeys() {
@@ -75,7 +76,6 @@ function focusOnZombie(zombie) {
 	this.player.body.rotation = angle + Math.PI / 2;
 
 	this.selectedObject = zombie;
-	this.selectionMarker.drawCircle(0, 0, Math.max(zombie.width, zombie.height) + 30);
 }
 
 function releaseFocusOnZombie(zombie) {
@@ -97,18 +97,22 @@ Game.prototype.create = function () {
 		layer,
 		eligibleZombieSpawnTiles = [];
 
+	this.mainGroup = this.game.add.group();
+	this.floorGroup = this.game.add.group();
+
 	// Setup factories
-	this.zombieFactory = ZombieFactory.get(this.game);
+	this.zombieFactory = ZombieFactory.get(this.game, this.floorGroup);
 	this.weaponFactory = WeaponFactory.get(this.game);
 
 	// Setup visual scene
 	floor = this.game.add.tileSprite(0, 0, this.game.world.width*FLOOR_SCALE, this.game.world.height*FLOOR_SCALE, 'floor');
 	floor.scale.set(1/FLOOR_SCALE);
 	floor.tint = 0x666666;
+	this.floorGroup.addChild(floor);
 
 	// Selection marker
 	this.selectionMarker = this.game.add.graphics(0, 0);
-	this.selectionMarker.lineStyle(1, 0x00ff00, 1);
+	this.selectionMarker.lineStyle(1, 0xffffff, 1);
 	this.selectionMarker.visible = false;
 
 	// Setup physics
@@ -165,14 +169,37 @@ Game.prototype.create = function () {
 	// Create weapon
 	this.player.activeWeapon = this.weaponFactory.createPistol();
 	this.player.activeWeapon.setOwner(this.player);
+
+	this.mainGroup.addChild(this.floorGroup);
+	this.mainGroup.addChild(this.zombies);
+	this.mainGroup.addChild(this.player);
 };
 
 function renderSelectionMarker() {
+	var diameter;
+
 	if (!this.selectedObject || this.selectedObject.alive === false) {
 		this.selectionMarker.visible = false;
 		return
 	};
 	
+	this.selectionMarker.clear();	
+
+	diameter = Math.max(this.selectedObject.width, this.selectedObject.height) + 30;
+	if (Helper.hasLoS(this.player, this.selectedObject, this.wallLayer)) {
+		this.selectionMarker.lineStyle(1, 0x00ff00, 1);
+		this.selectionMarker.moveTo(-diameter*0.25, 0);
+		this.selectionMarker.lineTo(diameter*0.25, 0);
+		this.selectionMarker.moveTo(0, -diameter*0.25);
+		this.selectionMarker.lineTo(0, diameter*0.25);
+		this.selectionMarker.moveTo(0, 0);
+		this.selectionMarker.drawCircle(0, 0, diameter);
+	} else {
+		this.selectionMarker.lineStyle(1, 0xff0000, 1);
+		this.selectionMarker.drawCircle(0, 0, diameter);
+	}
+
+
 	this.selectionMarker.x = this.selectedObject.x;
 	this.selectionMarker.y = this.selectedObject.y;
 
@@ -180,9 +207,8 @@ function renderSelectionMarker() {
 }
 
 Game.prototype.update = function () {
-	checkKeys.call(this);
-
 	renderSelectionMarker.call(this);
+	checkKeys.call(this);
 };
 
 Game.prototype.onInputDown = function () {

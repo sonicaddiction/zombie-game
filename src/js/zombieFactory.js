@@ -1,25 +1,28 @@
 var Helper = require('./helper.js');
 
-function ZombieFactory(game) {
+function ZombieFactory(game, floorGroup) {
 	this.game = game;
+	this.floorGroup = floorGroup;
 	this.zombieCount = 0;
 }
 
 function zombieDeath() {
-	var blood = this.game.add.sprite(this.x, this.y, 'blood', this.game.rnd.integerInRange(1, 13));
+	var blood = this.game.add.sprite(this.zombie.x, this.zombie.y, 'blood', this.game.rnd.integerInRange(1, 13));
     blood.scale.setTo(0.5);
     blood.anchor.set(0.5, 0.5);
+    this.floorGroup.addChild(blood);
 
 	console.log('zombie died');
 }
 
 function zombieHit(damage) {
-	var blood = this.game.add.sprite(this.x, this.y, 'blood', this.game.rnd.integerInRange(1, 13));
+	var blood = this.game.add.sprite(this.zombie.x, this.zombie.y, 'blood', this.game.rnd.integerInRange(1, 13));
     blood.scale.setTo(0.2);
     blood.anchor.set(0.5, 0.5);
+    this.floorGroup.addChild(blood);
 
-    console.log(this.name, 'hit for', damage, 'points of damage.');
-	this.damage(damage);
+    console.log(this.zombie.name, 'hit for', damage, 'points of damage.');
+	this.zombie.damage(damage);
 }
 
 ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
@@ -39,9 +42,9 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 	zombie.target = null;
 	zombie.lastSawPlayerAt = null;
 
-	zombie.events.onKilled.add(zombieDeath, zombie);
+	zombie.events.onKilled.add(zombieDeath, { zombie: zombie, floorGroup: this.floorGroup, game: this.game });
 	zombie.events.onHit = new Phaser.Signal();
-	zombie.events.onHit.add(zombieHit, zombie);
+	zombie.events.onHit.add(zombieHit, { zombie: zombie, floorGroup: this.floorGroup, game: this.game });
 
 	zombie.update = function () {
 		var angle,
@@ -58,8 +61,6 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 				x: player.x,
 				y: player.y
 			};
-		} else {
-			//zombie.target = null;
 		}
 
 		if (zombie.lastTimeHit) {
@@ -67,17 +68,23 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 			if (dt < 1000) return;
 		}
 
-		if (zombie.target) {
+		if (zombie.target) {			
 			zombie.body.rotation = Helper.getAngle(zombie, zombie.target) - Math.PI/2;
 			zombie.body.moveForward(10);
+
+			if (Helper.distance(zombie.target, zombie) < 3) {
+				zombie.target = null;
+			}
+		} else {
+			zombie.body.moveForward(5);			
 		}
 	};
 
 	return zombie;
 }
 
-function get(game) {
-	return new ZombieFactory(game);
+function get(game, floorGroup) {
+	return new ZombieFactory(game, floorGroup);
 }
 
 exports.get = get;
