@@ -16,6 +16,7 @@ function Game() {
 	this.weaponFactory = null;
 	this.obstacleFactory = null;
 	this.mainGroup = null;
+	this.noise = null;
 }
 
 function checkKeys() {
@@ -45,7 +46,7 @@ function checkKeys() {
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
     	if (this.selectedObject) {
-    		this.player.activeWeapon.fireGun(this.selectedObject, this.wallLayer);
+    		this.player.activeWeapon.fireGun(this.selectedObject, this.wallLayer, this.noise);
     	}
     }
 
@@ -53,7 +54,6 @@ function checkKeys() {
     	this.player.activeWeapon.reload();
     }
 }
-
 
 function zombieCollision(player, zombie) {
 	console.log('Crunch crunch crunch');
@@ -134,6 +134,10 @@ Game.prototype.create = function () {
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 	this.player.body.collides(wallCollisionGroup);
 
+	// Setup noise events
+	this.noise = new Phaser.Signal();
+	this.noise.add(respondToNoise);
+
 	// Create zombies
 	this.zombies = this.game.add.group();
 	this.zombies.enableBody = true;
@@ -149,6 +153,7 @@ Game.prototype.create = function () {
 		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16, this.player, this.wallLayer);
 	 	zombie.body.setCollisionGroup(zombieCollisionGroup);
 	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, wallCollisionGroup]);
+	 	this.noise.add(zombie.heardNoise);
 	}
 
 	this.zombies.setAll('inputEnabled', true);
@@ -163,8 +168,13 @@ Game.prototype.create = function () {
 	this.mainGroup.addChild(this.zombies);
 	this.mainGroup.addChild(this.player);
 
+	// Display stats
 	displayStats.call(this);
 };
+
+function respondToNoise(position) {
+	console.log('Gunshot was heard at', position.x, ',', position.y);
+}
 
 function renderSelectionMarker() {
 	var diameter;

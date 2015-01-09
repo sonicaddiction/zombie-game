@@ -36,7 +36,7 @@ Gun.prototype.calcHit = function (target) {
 	target.events.onHit.dispatch(damage);
 }
 
-Gun.prototype.fireGun = function (target, layer) {
+Gun.prototype.fireGun = function (target, layer, noiseSignal) {
 	var angle,
 		force = 100,
 		vector,
@@ -74,6 +74,12 @@ Gun.prototype.fireGun = function (target, layer) {
     this.muzzleFlash(angle);
     target.lastTimeHit = target.game.time.now;
     target.body.applyForce([force * Math.cos(angle),force * Math.sin(angle),0], target.body.x, target.body.y);
+
+	noiseSignal.dispatch({
+		x: this.owner.x,
+		y: this.owner.y
+	});
+
 }
 
 module.exports = Gun;

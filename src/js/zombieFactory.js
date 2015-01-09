@@ -46,6 +46,11 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 	zombie.events.onHit = new Phaser.Signal();
 	zombie.events.onHit.add(zombieHit, { zombie: zombie, floorGroup: this.floorGroup, game: this.game });
 
+	zombie.heardNoise = function (position) {
+		// Reacting to noise at position
+		zombie.target = position;
+	}
+
 	zombie.update = function () {
 		var angle,
 			da,
