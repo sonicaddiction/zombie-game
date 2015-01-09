@@ -36,29 +36,41 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 	zombie.name = 'Zombie #' + this.zombieCount;
 	zombie.body.setCircle(Math.min(zombie.width, zombie.height)/1.4);
 	this.zombieCount++;
+	zombie.target = null;
+	zombie.lastSawPlayerAt = null;
 
 	zombie.events.onKilled.add(zombieDeath, zombie);
 	zombie.events.onHit = new Phaser.Signal();
 	zombie.events.onHit.add(zombieHit, zombie);
 
 	zombie.update = function () {
-		var angle = Helper.getAngle(zombie, player) - Math.PI/2,
+		var angle,
 			hasLineOfSight = Helper.hasLoS(zombie, player, layer);
 
-		if(!hasLineOfSight) {
-			zombie.visible = false;
-		} else if (hasLineOfSight && zombie.alive) {
-			zombie.visible = true;
+		// if(!hasLineOfSight) {
+		// 	zombie.visible = false;
+		// } else if (hasLineOfSight && zombie.alive) {
+		// 	zombie.visible = true;
+		// }			
+
+		if (hasLineOfSight) {
+			zombie.target = {
+				x: player.x,
+				y: player.y
+			};
+		} else {
+			//zombie.target = null;
 		}
-			
 
 		if (zombie.lastTimeHit) {
 			dt = that.game.time.now - zombie.lastTimeHit;
 			if (dt < 1000) return;
 		}
 
-		zombie.body.rotation = angle;		
-		zombie.body.moveForward(10);
+		if (zombie.target) {
+			zombie.body.rotation = Helper.getAngle(zombie, zombie.target) - Math.PI/2;
+			zombie.body.moveForward(10);
+		}
 	};
 
 	return zombie;
