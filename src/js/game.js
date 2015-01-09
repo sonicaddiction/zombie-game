@@ -134,7 +134,7 @@ Game.prototype.create = function () {
 	this.player.body.setCollisionGroup(playerCollisionGroup);
 	this.player.body.collides(zombieCollisionGroup, zombieCollision, this);
 	this.player.body.collides(wallCollisionGroup);
-	this.game.camera.follow(this.player);
+	this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_TOPDOWN);
 
 	// Setup noise events
 	this.noise = new Phaser.Signal();
