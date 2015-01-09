@@ -45,8 +45,12 @@ function checkKeys() {
 
     if (this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
     	if (this.selectedObject) {
-    		this.player.activeWeapon.fireVector(this.selectedObject, this.wallLayer);
+    		this.player.activeWeapon.fireGun(this.selectedObject, this.wallLayer);
     	}
+    }
+
+    if (this.game.input.keyboard.isDown(Phaser.Keyboard.R)) {
+    	this.player.activeWeapon.reload();
     }
 }
 
@@ -158,6 +162,8 @@ Game.prototype.create = function () {
 	this.mainGroup.addChild(this.floorGroup);
 	this.mainGroup.addChild(this.zombies);
 	this.mainGroup.addChild(this.player);
+
+	displayStats.call(this);
 };
 
 function renderSelectionMarker() {
@@ -191,9 +197,19 @@ function renderSelectionMarker() {
 	this.selectionMarker.visible = true;
 }
 
+function displayStats() {
+	var style = { font: "16px Arial", fill: "#ffffff", align: "center" };
+	this.stats = this.game.add.text(8, 6, "Ammo:", style);
+}
+
+function updateStats() {
+	this.stats.text = 'Ammo: ' + this.player.activeWeapon.ammo;
+}
+
 Game.prototype.update = function () {
 	renderSelectionMarker.call(this);
 	checkKeys.call(this);
+	updateStats.call(this);
 };
 
 Game.prototype.onInputDown = function () {

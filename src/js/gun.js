@@ -1,8 +1,10 @@
 var Helper = require('./helper.js'),
 	NUMBER_OF_BULLETS = 10;
 
-function Gun(game, shotDelay, damageRollCallback) {
+function Gun(game, shotDelay, ammoCapacity, reloadTime, damageRollCallback) {
 	this.game = game;
+	this.ammoCapacity = ammoCapacity;
+	this.ammo = 0;
 	this.shotDelay = shotDelay;
 	this.damageRollCallback = damageRollCallback;
 }
@@ -15,6 +17,10 @@ function killSprite(sprite) {
 	return function () {
 		sprite.kill();
 	}
+}
+
+Gun.prototype.reload = function() {
+	this.ammo = this.ammoCapacity;
 }
 
 Gun.prototype.muzzleFlash = function (angle) {
@@ -30,7 +36,7 @@ Gun.prototype.calcHit = function (target) {
 	target.events.onHit.dispatch(damage);
 }
 
-Gun.prototype.fireVector = function (target, layer) {
+Gun.prototype.fireGun = function (target, layer) {
 	var angle,
 		force = 100,
 		vector,
@@ -38,6 +44,11 @@ Gun.prototype.fireVector = function (target, layer) {
 		blood;
 
 	if (!this.owner) return;
+
+	if (this.ammo <= 0) {
+		console.log('click!');
+		return;
+	}
 
 	// Check fire delay
     if (this.lastBulletShotAt === undefined) this.lastBulletShotAt = 0;
@@ -56,6 +67,7 @@ Gun.prototype.fireVector = function (target, layer) {
 
     // Damage
     this.calcHit(target);
+    this.ammo -= 1;
 
     // Impact with target
     angle = Helper.getAngle(this.owner, target);
