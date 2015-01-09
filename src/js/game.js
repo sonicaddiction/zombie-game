@@ -169,7 +169,7 @@ Game.prototype.create = function () {
 function renderSelectionMarker() {
 	var diameter;
 
-	if (!this.selectedObject || this.selectedObject.alive === false) {
+	if (!this.selectedObject || this.selectedObject.alive === false || !this.selectedObject.visible) {
 		this.selectionMarker.visible = false;
 		return
 	};
