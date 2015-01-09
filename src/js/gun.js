@@ -4,7 +4,7 @@ var Helper = require('./helper.js'),
 function Gun(game, shotDelay, ammoCapacity, reloadTime, damageRollCallback) {
 	this.game = game;
 	this.ammoCapacity = ammoCapacity;
-	this.ammo = 0;
+	this.ammo = ammoCapacity;
 	this.shotDelay = shotDelay;
 	this.damageRollCallback = damageRollCallback;
 }
