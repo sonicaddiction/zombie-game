@@ -1,6 +1,7 @@
 var ZombieFactory = require('./zombieFactory.js'),
 	WeaponFactory = require('./weaponFactory.js'),
 	obstacleFactory = require('./obstacleFactory.js'),
+	Helper.getAngle = require('./helper.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 5,
 	WALL_WIDTH = 15;
@@ -64,19 +65,12 @@ function setupPlayer() {
 	return player;
 }
 
-function getAngle(body1, body2) {
-	var dx = body1.x - body2.x,
-		dy = body1.y - body2.y;
-
-	return Math.atan2(dy, dx);
-}
-
 function zombieCollision(player, zombie) {
 	console.log('Crunch crunch crunch');
 }
 
 function focusOnZombie(zombie) {
-	var angle = getAngle(zombie.body, this.player.body);
+	var angle = Helper.getAngle(zombie.body, this.player.body);
 
 	this.player.body.rotation = angle + Math.PI / 2;
 
@@ -159,7 +153,7 @@ Game.prototype.create = function () {
 
 	for (i = 0; i < 10; i++) {
 		var spawnTile = this.game.rnd.pick(eligibleZombieSpawnTiles);
-		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16, this.player);
+		zombie = this.zombieFactory.createZombie(this.zombies, spawnTile.worldX+16, spawnTile.worldY+16, this.player, this.wallLayer);
 	 	zombie.body.setCollisionGroup(zombieCollisionGroup);
 	 	zombie.body.collides([zombieCollisionGroup, playerCollisionGroup, wallCollisionGroup]);
 	}
@@ -187,7 +181,7 @@ function renderSelectionMarker() {
 
 Game.prototype.update = function () {
 	checkKeys.call(this);
-	//moveZombies.call(this);
+
 	renderSelectionMarker.call(this);
 };
 

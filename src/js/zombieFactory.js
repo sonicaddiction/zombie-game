@@ -1,3 +1,5 @@
+var Helper = require('./helper.js');
+
 function ZombieFactory(game) {
 	this.game = game;
 	this.zombieCount = 0;
@@ -20,14 +22,7 @@ function zombieHit(damage) {
 	this.damage(damage);
 }
 
-function getAngle(body1, body2) {
-	var dx = body1.x - body2.x,
-		dy = body1.y - body2.y;
-
-	return Math.atan2(dy, dx);
-}
-
-ZombieFactory.prototype.createZombie = function (group, x, y, player) {
+ZombieFactory.prototype.createZombie = function (group, x, y, player, layer) {
 	var zombie,
 		that = this;
 
@@ -47,8 +42,10 @@ ZombieFactory.prototype.createZombie = function (group, x, y, player) {
 	zombie.events.onHit.add(zombieHit, zombie);
 
 	zombie.update = function () {
-		var angle = getAngle(zombie, player) - Math.PI/2;
-			
+		var angle = Helper.getAngle(zombie, player) - Math.PI/2;
+
+		Helper.checkVisibility(zombie, player, layer);
+
 		if (zombie.lastTimeHit) {
 			dt = that.game.time.now - zombie.lastTimeHit;
 			if (dt < 1000) return;

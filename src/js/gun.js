@@ -1,11 +1,5 @@
-var NUMBER_OF_BULLETS = 10;
-
-function getAngle(body1, body2) {
-	var dx = body1.x - body2.x,
-		dy = body1.y - body2.y;
-
-	return Math.atan2(dy, dx);
-}
+var Helper = require('./helper.js'),
+	NUMBER_OF_BULLETS = 10;
 
 function Gun(game, shotDelay, damageRollCallback) {
 	this.game = game;
@@ -64,7 +58,7 @@ Gun.prototype.fireVector = function (target, layer) {
     this.calcHit(target);
 
     // Impact with target
-    angle = getAngle(this.owner, target);
+    angle = Helper.getAngle(this.owner, target);
     this.muzzleFlash(angle);
     target.lastTimeHit = target.game.time.now;
     target.body.applyForce([force * Math.cos(angle),force * Math.sin(angle),0], target.body.x, target.body.y);
