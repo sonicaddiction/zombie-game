@@ -1,7 +1,7 @@
 var ZombieFactory = require('./zombieFactory.js'),
 	WeaponFactory = require('./weaponFactory.js'),
 	obstacleFactory = require('./obstacleFactory.js'),
-	Helper.getAngle = require('./helper.js'),
+	Helper = require('./helper.js'),
 	PLAYER_SPEED = 100,
 	FLOOR_SCALE = 5,
 	WALL_WIDTH = 15;
